@@ -39,23 +39,23 @@ jobs:
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             cd /opt/orator
 
-            # Write .env from secrets (first deploy only needs this once;
-            # subsequent deploys preserve it via --exclude above)
-            if [ ! -f .env ]; then
-              echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
-              echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-              echo "SITE_ORIGIN=https://${{ secrets.SITE_DOMAIN }}" >> .env
-              echo "SESSION_EXPIRY_HOURS=24" >> .env
-              echo "MAX_UPLOAD_MB=20" >> .env
-              echo "RATE_LIMIT_PER_IP=10" >> .env
-            fi
+            # Always rewrite .env from GitHub secrets so key rotation is automatic
+            cat > .env << ENVEOF
+ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+SECRET_KEY=${{ secrets.SECRET_KEY }}
+SITE_ORIGIN=https://${{ secrets.SITE_DOMAIN }}
+SESSION_EXPIRY_HOURS=24
+MAX_UPLOAD_MB=20
+RATE_LIMIT_PER_IP=10
+ENVEOF
+            chmod 600 .env
 
             # Replace domain placeholder in nginx config
             sed -i "s/REPLACE_WITH_YOUR_DOMAIN/${{ secrets.SITE_DOMAIN }}/g" nginx/nginx.conf
 
             # Build and restart
             docker compose pull --quiet 2>/dev/null || true
-            docker compose up --build -d --remove-orphans
+            docker compose up --build -d --force-recreate --remove-orphans
 
             # Wait and health-check
             sleep 10
