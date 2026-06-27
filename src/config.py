@@ -39,6 +39,10 @@ MAX_WALL_CLOCK_SECS = float(os.getenv("MAX_WALL_CLOCK_SECS", "300"))
 
 # Rate limiting (§4)
 MAX_GENERATIONS_PER_SESSION = int(os.getenv("MAX_GENERATIONS_PER_SESSION", "10"))
+# Per-IP limits enforced by slowapi middleware in main.py
+# Format: "<count> per <period>" — see https://limits.readthedocs.io/
+RATE_LIMIT_GENERATE = os.getenv("RATE_LIMIT_GENERATE", "10 per hour")
+RATE_LIMIT_SESSION  = os.getenv("RATE_LIMIT_SESSION",  "20 per hour")
 
 # Versioned prompt / policy files — deployed code loads these, never CLAUDE.md
 GENERATOR_PROMPT_PATH = PROMPTS_DIR / "generator_v1.md"

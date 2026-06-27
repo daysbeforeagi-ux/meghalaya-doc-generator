@@ -6,17 +6,27 @@ Gate checks run before delivery; audit is written either way.
 from __future__ import annotations
 
 import asyncio
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from src.audit.gate import run_gate_checks
 from src.audit.log import AuditLogger
-from src.config import DB_PATH, OUTPUTS_DIR, PROFILES_DIR
+from src.config import (
+    DB_PATH,
+    OUTPUTS_DIR,
+    PROFILES_DIR,
+    RATE_LIMIT_GENERATE,
+    RATE_LIMIT_SESSION,
+)
 from src.generate.generator import generate_speech
 from src.intake.flow import build_session_from_request
 from src.intake.models import CreateSessionRequest
@@ -26,6 +36,9 @@ from src.render.sentinel import process_sentinels
 from src.research.pipeline import run_research
 from src.storage.sqlite import SQLiteRepo
 from src.style.extractor import load_or_extract_profile
+
+# Per-IP rate limiter (§4) — reads X-Real-IP set by Nginx, falls back to peer addr
+limiter = Limiter(key_func=get_remote_address, headers_enabled=True)
 
 _repo: Optional[SQLiteRepo] = None
 
@@ -42,9 +55,19 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="Orator API — M1", version="1.0.0", lifespan=lifespan)
 
+# Rate limiter state + 429 handler (§4)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS — allow same-origin Nginx proxy in prod; also allow localhost in dev
+_site_domain = os.getenv("SITE_DOMAIN", "")
+_cors_origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
+if _site_domain:
+    _cors_origins += [f"https://{_site_domain}", f"http://{_site_domain}"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=_cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -59,7 +82,8 @@ def _db() -> SQLiteRepo:
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.post("/api/generate", status_code=202)
-async def create_and_generate(body: CreateSessionRequest, background_tasks: BackgroundTasks):
+@limiter.limit(RATE_LIMIT_GENERATE)
+async def create_and_generate(request: Request, body: CreateSessionRequest, background_tasks: BackgroundTasks):
     """
     Accept Q1–Q5 intake answers, create a session, and kick off the pipeline.
     Returns immediately with session_id; client polls /api/sessions/{id} for status.
@@ -72,7 +96,8 @@ async def create_and_generate(body: CreateSessionRequest, background_tasks: Back
 
 
 @app.get("/api/sessions/{session_id}")
-async def get_session(session_id: str):
+@limiter.limit(RATE_LIMIT_SESSION)
+async def get_session(request: Request, session_id: str):
     session = _db().get_session(session_id)
     if session is None:
         raise HTTPException(404, "Session not found")
