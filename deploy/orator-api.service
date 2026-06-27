@@ -1,0 +1,37 @@
+[Unit]
+Description=Orator API — FastAPI via Gunicorn + UvicornWorker
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=orator
+Group=orator
+WorkingDirectory=/opt/orator
+
+# Load all env vars from .env (including ANTHROPIC_API_KEY, DB_PATH, etc.)
+EnvironmentFile=/opt/orator/.env
+
+ExecStart=/opt/orator/.venv/bin/gunicorn main:app \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --workers 2 \
+    --bind 127.0.0.1:8000 \
+    --timeout 380 \
+    --graceful-timeout 30 \
+    --keep-alive 5 \
+    --access-logfile /var/log/orator/api-access.log \
+    --error-logfile  /var/log/orator/api-error.log \
+    --log-level info
+
+# Restart automatically on failure
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+# Harden the process
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

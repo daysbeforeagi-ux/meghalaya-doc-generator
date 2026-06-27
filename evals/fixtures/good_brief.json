@@ -1,0 +1,9 @@
+{
+  "_comment": "Golden fixture: a well-formed brief with a real, verifiable topic.",
+  "speaker_role": "cm",
+  "brief": "Inaugurate the new district hospital in Ratnagiri. The hospital has 200 beds and will serve rural communities across three districts. Emphasise the government's commitment to rural healthcare access.",
+  "length_target": "500-750",
+  "expected_evidence_tier": 1,
+  "must_not_contain_fabricated_facts": true,
+  "sentinel_must_be_present": true
+}

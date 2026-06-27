@@ -1,0 +1,19 @@
+{
+  "category": "speech",
+  "source_hash": "default",
+  "generated_at": "2026-06-27T00:00:00Z",
+  "corpus_size": 0,
+  "quality": "thin",
+  "style_guide": "Indian government speeches follow a formal, dignified style with warmth and national purpose.\n\n**Voice and person:** First person singular ('I') for personal commitment, first person plural ('we', 'our government') for collective action and policy, second person ('you', 'your') to directly address citizens and honour their presence.\n\n**Opening:** Begin with formal acknowledgments — distinguished guests, senior officers, elected representatives, local leaders, and citizens. Canonical openers: 'I am happy to inform', 'It gives me immense pleasure', 'It is my privilege to be here', 'I am delighted to be present'.\n\n**Structure:**\n1. Formal acknowledgments and greetings\n2. Context — the need, the challenge, or the historical moment\n3. Government action — what has been done, is being inaugurated, or is being announced\n4. Evidence and impact — facts, figures, beneficiaries, milestones\n5. Future vision — upcoming phases, aspirations, national goals\n6. Call to action or collective commitment\n7. Patriotic close: 'Jai Hind' or equivalent\n\n**Tone:** Aspirational, people-centric, development-focused. Emphasise welfare, progress, inclusivity, and national interest. Avoid partisanship; attribute achievements to collective effort and the will of the people.\n\n**Sentence mechanics:** Mix short declarative sentences with longer compound sentences. Prefer active voice. Use tricolon for emphasis: 'education, health, and prosperity'. Use anaphora for rhetorical build: 'Today we inaugurate... today we commit... today we promise.' Avoid passive constructions where possible.\n\n**Numbers and designations:** Use numerals for all numbers above ten (1,000; 45,000; ₹200 crore). Use Indian number system (lakh, crore). Write full official titles on first reference; role title on subsequent references. Use '₹' not 'Rs.' or 'INR' in text.\n\n**Closing:** Express gratitude to all assembled, reaffirm the government's commitment, close with a patriotic salute. 'Jai Hind' is the conventional close. 'Jai [State name]' may follow.",
+  "features": {
+    "avg_sentence_len": 18,
+    "passive_ratio": 0.12,
+    "reading_grade": 10,
+    "person": "first",
+    "rhetorical_devices": ["direct address", "anaphora", "tricolon", "enumeration", "aspiration"]
+  },
+  "exemplars": [
+    "I am delighted to be here today for the inauguration of this facility, which represents our government's unwavering commitment to the welfare of our citizens. Let me share with you what this milestone means for the people of this region.",
+    "The journey has not been easy. But today, as we gather here, I see in your faces the hope and determination that drives us forward. This achievement is not just a milestone — it is a symbol of our collective resolve to build a better tomorrow. Together, we will reach every home, every village, every family."
+  ]
+}

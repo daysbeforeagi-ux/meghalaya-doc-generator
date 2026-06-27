@@ -1,51 +1,51 @@
-# Environment
+# ── Secrets & local config ────────────────────────────────────────────────────
 .env
 .env.local
-.env.*.local
 
-# Python
+# ── Python ────────────────────────────────────────────────────────────────────
+.venv/
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 *.egg-info/
-.venv/
-venv/
+*.egg
 dist/
 build/
-*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# Node
-node_modules/
-.next/
-out/
-.cache/
+# ── Node / Next.js ────────────────────────────────────────────────────────────
+web/node_modules/
+web/.next/
+web/.env.local
 
-# Storage (runtime data — never commit)
-storage/
-profiles/
+# ── Database ──────────────────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
 
-# Reference PDFs — keep in git for style extraction
-!reference/speeches/*.pdf
-!reference/press_releases/*.pdf
+# ── Runtime outputs ───────────────────────────────────────────────────────────
+/outputs/
+/sessions/
+audit.jsonl
 
-# Credentials & secrets
-credentials.json
-token.json
-*.pem
-*.key
-
-# OS
+# ── macOS ─────────────────────────────────────────────────────────────────────
 .DS_Store
-Thumbs.db
+.AppleDouble
+.LSOverride
 
-# Logs
+# ── Editor ────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
 *.log
 logs/
 
-# Editor
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Docker
-docker-compose.override.yml
+# ── PM2 ──────────────────────────────────────────────────────────────────────
+.pm2/
