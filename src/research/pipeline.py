@@ -102,13 +102,16 @@ def run_research(session: Session, logger: AuditLogger) -> ResearchResult:
         f"- **{k}**: {v}" for k, v in policy.get("rules", {}).items()
     )
 
-    prompt = template.format(
-        factuality_rules=factuality_rules,
-        brief=session.brief,
-        speaker_context=_speaker_context(session),
-        locale=session.locale,
-        max_searches=budget.max_searches,
-        max_pages=budget.max_pages,
+    # Use explicit replace() instead of .format() so JSON braces in the
+    # prompt file (e.g. {"evidence": [...]}) don't raise KeyError.
+    prompt = (
+        template
+        .replace("{factuality_rules}", factuality_rules)
+        .replace("{brief}", session.brief)
+        .replace("{speaker_context}", _speaker_context(session))
+        .replace("{locale}", session.locale)
+        .replace("{max_searches}", str(budget.max_searches))
+        .replace("{max_pages}", str(budget.max_pages))
     )
 
     messages: list[dict] = [{"role": "user", "content": prompt}]

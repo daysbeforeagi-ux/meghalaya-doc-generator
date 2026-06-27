@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -83,7 +83,7 @@ def _db() -> SQLiteRepo:
 
 @app.post("/api/generate", status_code=202)
 @limiter.limit(RATE_LIMIT_GENERATE)
-async def create_and_generate(request: Request, body: CreateSessionRequest, background_tasks: BackgroundTasks):
+async def create_and_generate(request: Request, response: Response, body: CreateSessionRequest, background_tasks: BackgroundTasks):
     """
     Accept Q1–Q5 intake answers, create a session, and kick off the pipeline.
     Returns immediately with session_id; client polls /api/sessions/{id} for status.
@@ -97,7 +97,7 @@ async def create_and_generate(request: Request, body: CreateSessionRequest, back
 
 @app.get("/api/sessions/{session_id}")
 @limiter.limit(RATE_LIMIT_SESSION)
-async def get_session(request: Request, session_id: str):
+async def get_session(request: Request, response: Response, session_id: str):
     session = _db().get_session(session_id)
     if session is None:
         raise HTTPException(404, "Session not found")
